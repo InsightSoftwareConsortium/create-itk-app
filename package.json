@@ -25,5 +25,9 @@
   "homepage": "https://github.com/InsightSoftwareConsortium/create-itk-app#readme",
   "devDependencies": {
     "standard": "^12.0.1"
+  },
+  "dependencies": {
+    "commander": "^2.20.0",
+    "inquirer": "^6.3.1"
   }
 }
