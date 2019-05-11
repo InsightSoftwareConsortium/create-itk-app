@@ -1,0 +1,24 @@
+{
+  "name": "create-itk-app",
+  "version": "1.0.0",
+  "description": "Create an application based on itk.js, vtk.js, and React.js.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/InsightSoftwareConsortium/create-itk-app.git"
+  },
+  "keywords": [
+    "itk.js",
+    "vtk.js",
+    "react.js"
+  ],
+  "author": "Matt McCormick",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/InsightSoftwareConsortium/create-itk-app/issues"
+  },
+  "homepage": "https://github.com/InsightSoftwareConsortium/create-itk-app#readme"
+}
