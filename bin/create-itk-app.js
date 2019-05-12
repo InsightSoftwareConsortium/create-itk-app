@@ -11,6 +11,7 @@ const {guessEmail, guessAuthor, guessGitHubUsername} = require('conjecture')
 const stringifyAuthor = require('stringify-author')
 const spawn = require('cross-spawn')
 const replace = require('replace-in-file')
+const editJsonFile = require("edit-json-file")
 
 program
   .usage('[options] [destination]')
@@ -76,12 +77,6 @@ const prompts = [
   },
   {
     type: 'input',
-    name: 'homepage',
-    message: 'Homepage:',
-    when: !program.homepage
-  },
-  {
-    type: 'input',
     name: 'user',
     default (answers) {
       return guessGitHubUsername(answers.email)
@@ -97,7 +92,16 @@ const prompts = [
     },
     message: 'Repository name:',
     when: !program.repo
-  }
+  },
+  {
+    type: 'input',
+    name: 'homepage',
+    default (answers) {
+      return `https://github.com/${answers.user}/${answers.repo}`
+    },
+    message: 'Homepage:',
+    when: !program.homepage
+  },
 ]
 
 console.log(chalk.blue('\nLet\'s create a itk.js app!\n\nHit enter to accept the suggestion.\n'))
@@ -106,14 +110,13 @@ inquirer.prompt(prompts)
   .then(answers => {
     answers.author = stringifyAuthor({
       name: program.author || answers.author,
-      email: program.email || answers.email,
-      url: program.homepage || answers.homepage
+      email: program.email || answers.email
     })
-    answers.year = new Date().getFullYear()
     answers.appName = program.appName || answers.appName
     answers.description = program.desc || answers.description
     answers.user = program.user || answers.user
     answers.repo = program.repo || answers.repo
+    answers.homepage = program.homepage || answers.homepage
 
     console.log(answers)
 
@@ -125,7 +128,7 @@ inquirer.prompt(prompts)
     }
 
 
-    console.log(chalk.blue('\nSetting up craco...\n'))
+    console.log(chalk.blue('\nSetting up craco...'))
     const cracoResult = spawn.sync('npm', ['install', '--save', '--silent',
       '@craco/craco',
       'craco-itk', 'itk',
@@ -137,13 +140,23 @@ inquirer.prompt(prompts)
       console.log(chalk.red(`Could not install craco.`))
       return
     }
+
     const packageJson = path.resolve(destination, 'package.json')
-    const replaceOptions = {
-      files: packageJson,
-      from: [/react-scripts start/, /react-scripts build/, /react-scripts test/],
-      to: ['craco start', 'craco build', 'craco test']
-    }
-    replace.sync(replaceOptions)
+    const editPackageJson = editJsonFile(packageJson)
+    editPackageJson.set("name", answers.appName)
+    editPackageJson.set("author", answers.author)
+    editPackageJson.set("description", answers.description)
+    editPackageJson.set("keywords", ['itk.js'])
+    editPackageJson.set("license", ['Apache-2.0'])
+    editPackageJson.set("repository", answers.repository)
+    editPackageJson.set("homepage", answers.homepage)
+    editPackageJson.set("scripts.start", "craco start")
+    editPackageJson.set("scripts.build", "craco build")
+    editPackageJson.set("scripts.test", "craco test")
+    editPackageJson.set("repository.type", "git")
+    editPackageJson.set("repository.url", `git+https://github.com/${answers.user}/${answers.repo}.git`)
+    editPackageJson.save()
+
 
     const cracoConfig = `
 const CracoItkPlugin = require("craco-itk")
@@ -429,7 +442,6 @@ class App extends Component {
 export default App;
 `
     fs.writeFileSync(path.resolve(destination, 'src', 'App.js'), appJs)
-
 
     console.log(chalk.green(`${chalk.bold('Enjoy building your itk.js app!')}`))
   })
