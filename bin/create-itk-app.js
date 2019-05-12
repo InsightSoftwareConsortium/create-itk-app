@@ -115,7 +115,13 @@ inquirer.prompt(prompts)
 
     console.log(answers)
 
-    console.log(chalk.blue('\nCreating React app!\n\n'))
+    console.log(chalk.blue('\nCreating React app!'))
+    const result = spawn.sync('npx', ['create-react-app', destination], { stdio: 'inherit' });
+    if (result.status != 0) {
+      console.log(chalk.red(`Could not run create-react-app.`))
+      return
+    }
+
 
     console.log(chalk.blue('\nCreating React app!\n\n'))
     //const child = spawn('npm', ['install', '--prefix', destination], {stdio: 'inherit'})
