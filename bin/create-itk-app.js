@@ -10,8 +10,8 @@ const validatePackageName = require('validate-npm-package-name')
 const {guessEmail, guessAuthor, guessGitHubUsername} = require('conjecture')
 const stringifyAuthor = require('stringify-author')
 const spawn = require('cross-spawn')
-const replace = require('replace-in-file')
 const editJsonFile = require("edit-json-file")
+const simpleGit = require('simple-git')
 
 program
   .usage('[options] [destination]')
@@ -117,8 +117,6 @@ inquirer.prompt(prompts)
     answers.user = program.user || answers.user
     answers.repo = program.repo || answers.repo
     answers.homepage = program.homepage || answers.homepage
-
-    console.log(answers)
 
     console.log(chalk.blue('\nCreating React app!'))
     const craResult = spawn.sync('npx', ['create-react-app', destination], { stdio: ['ignore', 'inherit', 'inherit'] })
@@ -442,6 +440,10 @@ class App extends Component {
 export default App;
 `
     fs.writeFileSync(path.resolve(destination, 'src', 'App.js'), appJs)
+
+    const git = simpleGit(destination)
+    git.add(['craco.config.js', 'package.json', 'package-lock.json', 'src/App.js'])
+    git.commit('Updates from Create ITK App')
 
     console.log(chalk.green(`${chalk.bold('Enjoy building your itk.js app!')}`))
   })
