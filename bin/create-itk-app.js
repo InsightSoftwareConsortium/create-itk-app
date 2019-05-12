@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const path = require('path')
+const fs = require('fs')
 const inquirer = require('inquirer')
 const program = require('commander')
 const chalk = require('chalk')
@@ -9,6 +10,7 @@ const validatePackageName = require('validate-npm-package-name')
 const {guessEmail, guessAuthor, guessGitHubUsername} = require('conjecture')
 const stringifyAuthor = require('stringify-author')
 const spawn = require('cross-spawn')
+const replace = require('replace-in-file')
 
 program
   .usage('[options] [destination]')
@@ -116,20 +118,39 @@ inquirer.prompt(prompts)
     console.log(answers)
 
     console.log(chalk.blue('\nCreating React app!'))
-    const result = spawn.sync('npx', ['create-react-app', destination], { stdio: 'inherit' });
-    if (result.status != 0) {
+    const craResult = spawn.sync('npx', ['create-react-app', destination], { stdio: ['ignore', 'inherit', 'inherit'] })
+    if (craResult.status != 0) {
       console.log(chalk.red(`Could not run create-react-app.`))
       return
     }
 
 
-    console.log(chalk.blue('\nCreating React app!\n\n'))
-    //const child = spawn('npm', ['install', '--prefix', destination], {stdio: 'inherit'})
-    //child.on('close', code => {
-      //if (code !== 0) {
-        //console.log(chalk.red(`Could not install npm dependencies. Try running ${chalk.bold('npm install')} yourself.`))
-        //return
-      //}
-      //console.log(chalk.blue('\nDone! Enjoy building your itk.js app!'))
-    //})
+    console.log(chalk.blue('\nSetting up craco...\n'))
+    const cracoResult = spawn.sync('npm', ['install', '--save', '--silent', '@craco/craco', 'craco-itk', 'itk'], { stdio: 'inherit', cwd: destination })
+    if (cracoResult.status != 0) {
+      console.log(chalk.red(`Could not install craco.`))
+      return
+    }
+    const packageJson = path.resolve(destination, 'package.json')
+    const replaceOptions = {
+      files: packageJson,
+      from: [/react-scripts start/, /react-scripts build/, /react-scripts test/],
+      to: ['craco start', 'craco build', 'craco test']
+    }
+    replace.sync(replaceOptions)
+
+    const cracoConfig = `
+const CracoItkPlugin = require("craco-itk")
+
+module.exports = {
+  plugins: [
+    {
+      plugin: CracoItkPlugin()
+    }
+  ]
+}
+`
+    fs.writeFileSync(path.resolve(destination, 'craco.config.js'), cracoConfig)
+
+    console.log(chalk.green(`${chalk.bold('Enjoy building your itk.js app!')}`))
   })
