@@ -10,9 +10,3 @@ After [installing Node.js](https://nodejs.org/en/download/),
 ```sh
 npx create-itk-app my-first-app
 ```
-
-If you are using Yarn:
-
-```sh
-yarn create itk-app my-first-app
-```
