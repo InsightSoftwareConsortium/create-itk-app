@@ -7,19 +7,19 @@ const program = require('commander')
 const chalk = require('chalk')
 const kebabCase = require('lodash.kebabcase')
 const validatePackageName = require('validate-npm-package-name')
-const {guessEmail, guessAuthor, guessGitHubUsername} = require('conjecture')
+const { guessEmail, guessAuthor, guessGitHubUsername } = require('conjecture')
 const stringifyAuthor = require('stringify-author')
 const spawn = require('cross-spawn')
-const editJsonFile = require("edit-json-file")
+const editJsonFile = require('edit-json-file')
 const simpleGit = require('simple-git')
 
 program
   .usage('[options] [destination]')
   .option('-n, --appName <app-name>', 'App name')
   .option('-d, --desc "<description>"',
-        'Description (contain in quotes)')
+    'Description (contain in quotes)')
   .option('-a, --author "<full-name>"',
-        'Author name (contain in quotes)')
+    'Author name (contain in quotes)')
   .option('-e, --email <email>', 'Author email address')
   .option('--homepage <homepage>', 'Project\'s homepage')
   .option('-u, --user <username>', 'GitHub username or org (repo owner)')
@@ -101,7 +101,7 @@ const prompts = [
     },
     message: 'Homepage:',
     when: !program.homepage
-  },
+  }
 ]
 
 console.log(chalk.blue('\nLet\'s create a itk.js app!\n\nHit enter to accept the suggestion.\n'))
@@ -120,41 +120,39 @@ inquirer.prompt(prompts)
 
     console.log(chalk.blue('\nCreating React app!'))
     const craResult = spawn.sync('npx', ['create-react-app', destination], { stdio: ['ignore', 'inherit', 'inherit'] })
-    if (craResult.status != 0) {
+    if (craResult.status !== 0) {
       console.log(chalk.red(`Could not run create-react-app.`))
       return
     }
-
 
     console.log(chalk.blue('\nSetting up craco...'))
     const cracoResult = spawn.sync('npm', ['install', '--save', '--silent',
       '@craco/craco',
       'craco-itk', 'itk',
       'craco-vtk', 'vtk.js', 'shader-loader', 'worker-loader'
-      ],
-      { stdio: 'inherit', cwd: destination }
+    ],
+    { stdio: 'inherit', cwd: destination }
     )
-    if (cracoResult.status != 0) {
+    if (cracoResult.status !== 0) {
       console.log(chalk.red(`Could not install craco.`))
       return
     }
 
     const packageJson = path.resolve(destination, 'package.json')
     const editPackageJson = editJsonFile(packageJson)
-    editPackageJson.set("name", answers.appName)
-    editPackageJson.set("author", answers.author)
-    editPackageJson.set("description", answers.description)
-    editPackageJson.set("keywords", ['itk.js'])
-    editPackageJson.set("license", ['Apache-2.0'])
-    editPackageJson.set("repository", answers.repository)
-    editPackageJson.set("homepage", answers.homepage)
-    editPackageJson.set("scripts.start", "craco start")
-    editPackageJson.set("scripts.build", "craco build")
-    editPackageJson.set("scripts.test", "craco test")
-    editPackageJson.set("repository.type", "git")
-    editPackageJson.set("repository.url", `git+https://github.com/${answers.user}/${answers.repo}.git`)
+    editPackageJson.set('name', answers.appName)
+    editPackageJson.set('author', answers.author)
+    editPackageJson.set('description', answers.description)
+    editPackageJson.set('keywords', ['itk.js'])
+    editPackageJson.set('license', ['Apache-2.0'])
+    editPackageJson.set('repository', answers.repository)
+    editPackageJson.set('homepage', answers.homepage)
+    editPackageJson.set('scripts.start', 'craco start')
+    editPackageJson.set('scripts.build', 'craco build')
+    editPackageJson.set('scripts.test', 'craco test')
+    editPackageJson.set('repository.type', 'git')
+    editPackageJson.set('repository.url', `git+https://github.com/${answers.user}/${answers.repo}.git`)
     editPackageJson.save()
-
 
     const cracoConfig = `
 const CracoItkPlugin = require("craco-itk")
@@ -173,7 +171,7 @@ module.exports = {
 `
     fs.writeFileSync(path.resolve(destination, 'craco.config.js'), cracoConfig)
 
-const appJs = `
+    const appJs = `
 import React, { Component } from 'react';
 import './App.css';
 
