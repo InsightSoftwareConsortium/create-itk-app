@@ -126,7 +126,7 @@ inquirer.prompt(prompts)
     }
 
     console.log(chalk.blue('\nSetting up craco...'))
-    const cracoResult = spawn.sync('npm', ['install', '--save', '--silent',
+    const cracoResult = spawn.sync('yarn', ['add',
       '@craco/craco',
       'craco-itk', 'itk',
       'craco-vtk', 'vtk.js', 'shader-loader', 'worker-loader'
@@ -440,7 +440,7 @@ export default App;
     fs.writeFileSync(path.resolve(destination, 'src', 'App.js'), appJs)
 
     const git = simpleGit(destination)
-    git.add(['craco.config.js', 'package.json', 'package-lock.json', 'src/App.js'])
+    git.add(['craco.config.js', 'package.json', 'yarn.lock', 'src/App.js'])
     git.commit('Updates from Create ITK App')
 
     console.log(chalk.green(`${chalk.bold('Enjoy building your itk.js app!')}`))
