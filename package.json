@@ -1,6 +1,6 @@
 {
   "name": "create-itk-app",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Create an application based on itk.js, vtk.js, and React.js.",
   "bin": {
     "create-itk-app": "./bin/create-itk-app.js"
